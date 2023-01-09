@@ -12,20 +12,24 @@ namespace special_message_in_queue
             var stopwatch = new Stopwatch();
             var WaitingObj = new DesignedObservableQueue();
 
-            stopwatch.Start();
-            _ = WaitingObj.SelfTest();
+            // Local test method is expecting to match
+            // the predicate in ~6 seconds so allow 10.
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
-            // Local test method is expecting to
-            // match the predicate in ~6 seconds.
-            if(TestMethod().Wait(TimeSpan.FromSeconds(4)))
+            stopwatch.Start();
+
+            _ = WaitingObj.SelfTest(cts.Token);
+            try
             {
+                TestMethod().Wait(cts.Token);
                 Console.WriteLine($"PASSED {stopwatch.Elapsed}");
             }
-            else
+            catch (OperationCanceledException ex)
             {
                 Console.WriteLine($"FAILED {stopwatch.Elapsed}");
             }
-            // Local method
+
+            // Local test method
             async Task TestMethod()
             {
                 // do something
@@ -90,8 +94,9 @@ namespace special_message_in_queue
                 }
             }
         }
-        // Enqueue one message per second.
-        public async Task SelfTest()
+        // Mock a queue that "is receiving messages all the
+        // time" by self-enqueuing at one-second intervals.
+        public async Task SelfTest(CancellationToken token)
         {
             foreach (
                 var message in new[]
@@ -109,6 +114,7 @@ namespace special_message_in_queue
                     "coalition",
                 })
             {
+                if(token.IsCancellationRequested) return;
                 Enqueue(new MockMessage { Message = message });
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }

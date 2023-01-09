@@ -6,7 +6,6 @@ namespace special_message_in_queue
 {
     internal class Program
     {
-        //  I wonder if I can just solve it by designing WaitingObj.Read()
         static void Main(string[] args)
         {
             Console.Title = "Test Runner";
@@ -18,7 +17,7 @@ namespace special_message_in_queue
 
             // Local test method is expecting to
             // match the predicate in ~6 seconds.
-            if(TestMethod().Wait(TimeSpan.FromSeconds(10)))
+            if(TestMethod().Wait(TimeSpan.FromSeconds(4)))
             {
                 Console.WriteLine($"PASSED {stopwatch.Elapsed}");
             }
@@ -29,9 +28,10 @@ namespace special_message_in_queue
             // Local method
             async Task TestMethod()
             {
+                // do something
                 await WaitingObj.ReadAsync((message) => message.Message == "special");
+                // continue to do something
             }
-
             Console.ReadKey();
         }
     }
@@ -90,7 +90,7 @@ namespace special_message_in_queue
                 }
             }
         }
-
+        // Enqueue one message per second.
         public async Task SelfTest()
         {
             foreach (

@@ -47,7 +47,9 @@ namespace special_message_in_queue
             CollectionChanged?
                 .Invoke(
                     this,
-                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, message));
+                    new NotifyCollectionChangedEventArgs(
+                        NotifyCollectionChangedAction.Add, 
+                        message));
         }
         public new MockMessage Dequeue()
         {
@@ -55,7 +57,9 @@ namespace special_message_in_queue
             CollectionChanged?
                 .Invoke(
                     this,
-                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, message));
+                    new NotifyCollectionChangedEventArgs(
+                        NotifyCollectionChangedAction.Remove, 
+                        message));
             return message;
         }
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
@@ -111,7 +115,6 @@ namespace special_message_in_queue
                     "please",
                     "shell",
                     "momentum",
-                    "coalition",
                 })
             {
                 if(token.IsCancellationRequested) return;
